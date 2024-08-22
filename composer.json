@@ -1,0 +1,11 @@
+{
+    "name": "linkedcode/doctrine",
+    "autoload": {
+        "psr-4": {
+            "Linkedcode\\Doctrine\\": "src/"
+        }
+    },
+    "require": {
+        "doctrine/orm": "^3.2"
+    }
+}
