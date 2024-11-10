@@ -2,15 +2,17 @@
 
 namespace Linkedcode\Doctrine\Query;
 
+use Doctrine\ORM\EntityManager;
+use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\QueryBuilder;
 use Exception;
 
 abstract class AbstractQuery
 {
     protected QueryBuilder $qb;
-    protected string $table;
+    protected EntityManagerInterface $em;
+    protected string $entity;
     protected string $alias;
-    protected string $entityClass;
     protected array $params = [];
 
     private int $page = 1;
@@ -19,11 +21,13 @@ abstract class AbstractQuery
     protected const string AND = "AND";
     protected const string OR = "OR";
 
-    public function __construct(QueryBuilder $qb)
+    public function __construct(EntityManagerInterface $entityManager)
     {
-        $this->qb = $qb;
+        $this->em = $entityManager;
+
+        $this->qb = $this->em->createQueryBuilder();
         $this->qb->select($this->alias);
-        $this->qb->from($this->entityClass, $this->alias);
+        $this->qb->from($this->entity, $this->alias);
     }
 
     protected function addGreaterThan(string $table, string $column, mixed $value, $inclusive = true)
@@ -53,6 +57,9 @@ abstract class AbstractQuery
         if (is_int($value)) {
             $this->qb->andWhere("{$table}.{$column} = :{$column}");
             $this->qb->setParameter($column, $value);
+        } else if (is_numeric($value)) {
+            $this->qb->andWhere("{$table}.{$column} = :{$column}");
+            $this->qb->setParameter($column, intval($value));
         } else if (is_array($value)) {
             $expressions = [];
             foreach ($value as $idx => $v) {
