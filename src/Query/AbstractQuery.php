@@ -11,7 +11,7 @@ abstract class AbstractQuery
 {
     protected QueryBuilder $qb;
     protected EntityManagerInterface $em;
-    protected string $entity;
+    protected string $entityClass;
     protected string $alias;
     protected array $params = [];
 
@@ -27,8 +27,10 @@ abstract class AbstractQuery
 
         $this->qb = $this->em->createQueryBuilder();
         $this->qb->select($this->alias);
-        $this->qb->from($this->entity, $this->alias);
+        $this->qb->from($this->entityClass, $this->alias);
     }
+
+    abstract protected function parseParams();
 
     protected function addGreaterThan(string $table, string $column, mixed $value, $inclusive = true)
     {
@@ -52,18 +54,22 @@ abstract class AbstractQuery
         $this->qb->setParameter($column, $value);
     }
 
-    protected function addWhere(string $table, string $column, mixed $value, $boolOperator = "AND")
+    protected function orderBy(string $alias, string $column, string $order)
     {
-        if (is_int($value)) {
-            $this->qb->andWhere("{$table}.{$column} = :{$column}");
-            $this->qb->setParameter($column, $value);
-        } else if (is_numeric($value)) {
-            $this->qb->andWhere("{$table}.{$column} = :{$column}");
+        $this->qb->orderBy($alias . "." . $column, $order);
+    }
+
+    protected function addWhere(string $alias, string $column, mixed $value, $boolOperator = self::AND)
+    {
+        if (is_int($value) || is_numeric($value)) {
+            $this->qb->andWhere("{$alias}.{$column} = :{$column}");
             $this->qb->setParameter($column, intval($value));
+        } else if (is_null($value)) {
+            $this->qb->andWhere("{$alias}.{$column} IS NULL");
         } else if (is_array($value)) {
             $expressions = [];
             foreach ($value as $idx => $v) {
-                $expressions[] = $this->qb->expr()->eq("{$table}.{$column}", ":{$column}{$idx}");
+                $expressions[] = $this->qb->expr()->eq("{$alias}.{$column}", ":{$column}{$idx}");
                 $this->qb->setParameter($column . $idx, $v);
             }
             
@@ -140,7 +146,7 @@ abstract class AbstractQuery
         $this->qb->setFirstResult(($this->page - 1) * $this->limit);
         $this->qb->setMaxResults($this->limit);
 
-        ///$dql = $this->qb->getDQL();
+        $dql = $this->qb->getDQL();
         //echo $dql;
 
         return $this->qb->getQuery()->getResult();
@@ -150,6 +156,4 @@ abstract class AbstractQuery
     {
         $this->params = $params;
     }
-
-    abstract protected function parseParams();
 }
