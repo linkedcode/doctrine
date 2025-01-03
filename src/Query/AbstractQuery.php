@@ -2,7 +2,6 @@
 
 namespace Linkedcode\Doctrine\Query;
 
-use Doctrine\ORM\EntityManager;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\QueryBuilder;
 use Exception;
