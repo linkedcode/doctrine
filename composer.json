@@ -1,5 +1,6 @@
 {
     "name": "linkedcode/doctrine",
+    "type": "library",
     "autoload": {
         "psr-4": {
             "Linkedcode\\Doctrine\\": "src/"
