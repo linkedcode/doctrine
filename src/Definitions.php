@@ -12,7 +12,7 @@ use Psr\Container\ContainerInterface;
 
 class Definitions
 {
-    public static function get(string $appDir): array
+    public static function get(): array
     {
         return [
             EventManager::class => function() {
@@ -21,7 +21,9 @@ class Definitions
             EntityManager::class => function(ContainerInterface $container) {
                 return $container->get(EntityManagerInterface::class);
             },
-            EntityManagerInterface::class => function (ContainerInterface $container) use ($appDir) {
+            EntityManagerInterface::class => function (ContainerInterface $container) {
+                $appDir = $container->get(Settings::class)->getAppDir();
+
                 $config = ORMSetup::createXMLMetadataConfiguration(
                     paths: array($appDir . "/config/xml"),
                     isDevMode: $container->get(Settings::class)->get('doctrine.isDevMode'),
