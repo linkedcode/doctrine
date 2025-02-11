@@ -24,9 +24,9 @@ abstract class AbstractQuery
     {
         $this->em = $entityManager;
 
-        $this->qb = $this->em->createQueryBuilder();
-        $this->qb->select($this->alias);
-        $this->qb->from($this->entityClass, $this->alias);
+        $this->qb = $this->em->createQueryBuilder()
+            ->select($this->alias)
+            ->from($this->entityClass, $this->alias);
     }
 
     abstract protected function parseParams();
@@ -82,25 +82,24 @@ abstract class AbstractQuery
         }
     }
 
-    protected function addLike(array $tableColumn, string $value, $boolOperator = "OR")
+    /**
+     * Se debe incluir los '%' en $value
+     */
+    protected function addLike(array $tableColumn, string $value)
     {
-        $columns = $this->countColumns($tableColumn);
-
-        if ($columns === 1) {
-            foreach ($tableColumn as $table => $columns) {
-                $column = $columns[0];
+        $expressions = [];
+        
+        foreach ($tableColumn as $table => $columns) {
+            foreach ($columns as $column) {
+                $col = $this->column($table, $column);
+                $expressions[] = $this->qb->expr()->like($col, ":{$table}{$column}");
+                $this->qb->setParameter($table . $column, $value);
             }
+        }
 
-            $this->qb->andWhere("{$table}.{$column} LIKE :{$table}{$column}");
-            $this->qb->setParameter($table . $column, $value);
+        if (count($expressions) === 1) {
+            $this->qb->andWhere($expressions[0]);
         } else {
-            $expressions = [];
-            foreach ($tableColumn as $table => $columns) {
-                foreach ($columns as $column) {
-                    $expressions[] = $this->qb->expr()->like("{$table}.{$column}", ":{$table}{$column}");
-                    $this->qb->setParameter($table . $column, $value);
-                }
-            }
             $expr = $this->qb->expr()->orX(...$expressions);
             $this->qb->andWhere($expr);
         }
@@ -138,7 +137,7 @@ abstract class AbstractQuery
         $this->page = $page;
     }
 
-    public function execute(array $params = [])
+    public function execute(array $params = []): mixed
     {
         $this->setParams($params);
         $this->parseParams();
@@ -154,5 +153,10 @@ abstract class AbstractQuery
     protected function setParams(array $params): void
     {
         $this->params = $params;
+    }
+
+    private function column(string $alias, string $column): string
+    {
+        return sprintf("%s.%s", $alias, $column);
     }
 }
