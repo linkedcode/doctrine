@@ -14,8 +14,8 @@ abstract class AbstractQuery
     protected string $alias;
     protected array $params = [];
 
-    private int $page = 1;
-    private int $limit = 10;
+    protected int $page = 1;
+    protected int $limit = 12;
 
     protected const string AND = "AND";
     protected const string OR = "OR";
