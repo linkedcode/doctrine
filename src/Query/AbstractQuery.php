@@ -121,17 +121,6 @@ abstract class AbstractQuery
         $this->qb->andWhere($expr);
     }
 
-    private function countColumns(array $tableColumn): int
-    {
-        $count = 0;
-
-        foreach ($tableColumn as $columns) {
-            $count += count($columns);
-        }
-
-        return $count;
-    }
-
     public function setPage(int $page): void
     {
         $this->page = $page;
@@ -152,7 +141,7 @@ abstract class AbstractQuery
 
     protected function setParams(array $params): void
     {
-        $this->params = $params;
+        $this->params = array_merge($this->params, $params);
     }
 
     private function column(string $alias, string $column): string
