@@ -63,6 +63,9 @@ abstract class AbstractQuery
         if (is_int($value) || is_numeric($value)) {
             $this->qb->andWhere("{$alias}.{$column} = :{$column}");
             $this->qb->setParameter($column, intval($value));
+        } else if (is_string($value)) {
+            $this->qb->andWhere("{$alias}.{$column} = :{$column}");
+            $this->qb->setParameter($column, strval($value));
         } else if (is_null($value)) {
             $this->qb->andWhere("{$alias}.{$column} IS NULL");
         } else if (is_array($value)) {
