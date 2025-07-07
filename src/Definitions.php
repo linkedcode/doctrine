@@ -10,7 +10,6 @@ use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\ORMSetup;
 use Linkedcode\Slim\Settings;
 use Psr\Container\ContainerInterface;
-use Ramsey\Uuid\Doctrine\UuidBinaryType;
 
 class Definitions
 {
