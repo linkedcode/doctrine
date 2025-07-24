@@ -74,13 +74,13 @@ abstract class AbstractQuery
                 $expressions[] = $this->qb->expr()->eq("{$alias}.{$column}", ":{$column}{$idx}");
                 $this->qb->setParameter($column . $idx, $v);
             }
-            
+
             if ($boolOperator == self::AND) {
                 $expr = $this->qb->expr()->andX(...$expressions);
             } else {
                 $expr = $this->qb->expr()->orX(...$expressions);
             }
-            
+
             $this->qb->andWhere($expr);
         }
     }
@@ -91,7 +91,7 @@ abstract class AbstractQuery
     protected function addLike(array $tableColumn, string $value)
     {
         $expressions = [];
-        
+
         foreach ($tableColumn as $table => $columns) {
             foreach ($columns as $column) {
                 $col = $this->column($table, $column);
