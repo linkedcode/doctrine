@@ -8,7 +8,7 @@ use Doctrine\DBAL\Types\Type;
 use Doctrine\ORM\EntityManager;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\ORMSetup;
-use Linkedcode\Slim\Settings;
+use Linkedcode\Base\Settings;
 use Psr\Container\ContainerInterface;
 
 class Definitions
@@ -16,10 +16,10 @@ class Definitions
     public static function get(array $options = []): array
     {
         return [
-            EventManager::class => function() {
+            EventManager::class => function () {
                 return new EventManager;
             },
-            EntityManager::class => function(ContainerInterface $container) {
+            EntityManager::class => function (ContainerInterface $container) {
                 return $container->get(EntityManagerInterface::class);
             },
             EntityManagerInterface::class => function (ContainerInterface $container) use ($options) {
