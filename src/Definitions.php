@@ -23,20 +23,26 @@ class Definitions
                 return $container->get(EntityManagerInterface::class);
             },
             EntityManagerInterface::class => function (ContainerInterface $container) use ($options) {
-                $appDir = $container->get(Settings::class)->getAppDir();
+                $settings = $container->get(Settings::class);
+                $appDir = $settings->getAppDir();
+                $metadataConfig = $settings->get('doctrine.XMLMetadataConfiguration');
+                $paths = [];
+
+                foreach ($metadataConfig['paths'] as $p) {
+                    $paths[] = $appDir . '/' . ltrim($p, '/');
+                }
 
                 $config = ORMSetup::createXMLMetadataConfiguration(
-                    paths: array($appDir . "/config/xml"),
-                    isDevMode: $container->get(Settings::class)->get('doctrine.isDevMode'),
+                    paths: $paths,
+                    isDevMode: $metadataConfig['isDevMode'],
                     isXsdValidationEnabled: false,
                 );
 
-                $dbParams = $container->get(Settings::class)->get('db');
-
+                $dbParams = $settings->get('db');
 
                 $connection = DriverManager::getConnection($dbParams, $config);
 
-                if (isset($options['uuid_binary'])) {
+                if ($settings->get('doctrine.types.uuid', false)) {
                     Type::addType('uuid_binary', 'Ramsey\Uuid\Doctrine\UuidBinaryType');
                     $connection->getDatabasePlatform()->registerDoctrineTypeMapping('uuid_binary', 'binary');
                 }
