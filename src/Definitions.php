@@ -38,6 +38,8 @@ class Definitions
                     isXsdValidationEnabled: false,
                 );
 
+                $config->enableNativeLazyObjects(true);
+
                 $dbParams = $settings->get('db');
 
                 $connection = DriverManager::getConnection($dbParams, $config);
